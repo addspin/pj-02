@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -21,6 +22,7 @@ func (cb *ChannelBuffer) Add(data chan int, quantytyData int) {
 		num, _ := strconv.Atoi(input)
 		data <- num
 		i++
+		log.Println("Добавлено значение:", num)
 		if i == quantytyData {
 			close(data)
 			break
@@ -29,22 +31,26 @@ func (cb *ChannelBuffer) Add(data chan int, quantytyData int) {
 }
 func (cb *ChannelBuffer) Get(interval time.Duration) {
 	defer cb.wg.Done()
+
 	for v := range cb.data {
 		num, err := strconv.Atoi(strconv.Itoa(v))
 		if err != nil {
 			continue
 		}
 		if num == 0 {
+			log.Printf("Введенное значение '%d' не может быть равно нулю, и будет отброшено", num)
 			continue
 		}
 		if num < 0 {
+			log.Printf("Введенное значение '%d' не может быть отрицательным, и будет отброшено", num)
 			continue
 		}
 		if num%3 != 0 {
+			log.Printf("Введенное значение '%d' должно быть кратно 3, значение будет отброшено", num)
 			continue
 		}
 		time.Sleep(interval * time.Second)
-		fmt.Println("Получено значение:", v)
+		log.Println("Получено значение:", v)
 	}
 }
 
